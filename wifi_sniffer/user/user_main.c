@@ -115,6 +115,7 @@ void _promiscuous_rx_cb(uint8 *buf, uint16 len){
         return;
     }
     memcpy(msg.buf_cp,buf,len);
+    msg.len = len;
     while(pdPASS!=xQueueSendToBack( packageReadQuene, &msg, 100/portTICK_RATE_MS )){
         printf("queue full!\n");
     }
@@ -132,7 +133,7 @@ void _main_thread(void *p){
         wifi_set_channel(channel);
         printf("set channel %d\n",channel);
         channel++;
-        if(channel>11){
+        if(channel>13){
             channel = 1;
         }
     }
@@ -173,7 +174,7 @@ void user_init(void)
     _set115200();
     printf("SDK version:%s\n", system_get_sdk_version());
 
-    wifi_station_disconnect();
+    packageReadQuene =  xQueueCreate( 200, sizeof(PackageMSG_t));
 
     //wifi_station_disconnect
     signed portBASE_TYPE ret = xTaskCreate(_main_thread,
@@ -186,8 +187,6 @@ void user_init(void)
         printf("create thread  1 failed\n");
         return ;
     }
-
-    packageReadQuene =  xQueueCreate( 20, sizeof(PackageMSG_t));
 
     ret = xTaskCreate(_print_package_thread,
                       "printf_task",
