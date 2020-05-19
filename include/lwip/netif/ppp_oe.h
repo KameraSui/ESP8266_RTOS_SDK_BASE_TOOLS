@@ -72,6 +72,7 @@
 
 #include "lwip/opt.h"
 
+#define PPPOE_SUPPORT 0
 #if PPPOE_SUPPORT > 0
 
 #include "netif/etharp.h"
